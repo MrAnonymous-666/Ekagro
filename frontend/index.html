@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ekagro \u2014 Focused Task Management</title>
+<meta name="description" content="Ekagro is a secure task management platform with a Kanban board, habit tracker, notes, bill reminders, and AI-generated productivity insights.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ekagro.app/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ekagro \u2014 Focused Task Management">
+<meta property="og:description" content="A secure, cross-platform task manager with Kanban, habits, notes, bills, and AI-generated insights.">
+<meta property="og:image" content="https://ekagro.app/og-image-source.png">
+<meta property="og:url" content="https://ekagro.app/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ekagro \u2014 Focused Task Management">
+<meta name="twitter:description" content="A secure, cross-platform task manager with Kanban, habits, notes, bills, and AI-generated insights.">
+<meta name="twitter:image" content="https://ekagro.app/og-image-source.png">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#5b5ff0">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Poppins:wght@400;600;700&family=Nunito:wght@400;600;700&family=Roboto:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="storage.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:var(--font-family, Arial, sans-serif);}
+
+:root{ --font-family: 'Inter', Arial, sans-serif; }
+:root, [data-theme="cool"]{
+  --bg:#eef1f8; --container-bg:#ffffff; --text:#1a1d29; --muted:#6b7280;
+  --card-bg:#f6f8fc; --input-bg:#ffffff; --input-border:#e2e6f0;
+  --accent:#5b5ff0; --accent2:#8b5cf6; --accent-text:#ffffff;
+  --shadow-sm:0 2px 8px rgba(30,41,89,0.06); --shadow-md:0 8px 24px rgba(30,41,89,0.09); --shadow-lg:0 16px 40px rgba(30,41,89,0.12);
+}
+[data-theme="warm"]{
+  --bg:#f6efdc; --container-bg:#fdf7ea; --text:#4b3621; --muted:#8a6d4f;
+  --card-bg:#f4e9ce; --input-bg:#fffaf0; --input-border:#e5d3a8;
+  --accent:#c2703a; --accent2:#e0954f; --accent-text:#ffffff;
+  --shadow-sm:0 2px 8px rgba(90,60,20,0.08); --shadow-md:0 8px 24px rgba(90,60,20,0.10); --shadow-lg:0 16px 40px rgba(90,60,20,0.14);
+}
+[data-theme="dark"]{
+  --bg:#0e0f13; --container-bg:#191b22; --text:#f2f3f7; --muted:#9ca3af;
+  --card-bg:#22242e; --input-bg:#22242e; --input-border:#33364a;
+  --accent:#7c7ff5; --accent2:#a78bfa; --accent-text:#ffffff;
+  --shadow-sm:0 2px 10px rgba(0,0,0,0.35); --shadow-md:0 10px 28px rgba(0,0,0,0.4); --shadow-lg:0 20px 48px rgba(0,0,0,0.5);
+}
+
+body{background:var(--bg);color:var(--text);transition:0.3s;padding:24px;-webkit-font-smoothing:antialiased;}
+.container{max-width:1200px;width:100%;margin:auto;background:var(--container-bg);padding:28px;border-radius:24px;box-shadow:var(--shadow-lg);position:relative;}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.topbar-left,.topbar-right{display:flex;align-items:center;}
+.brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:800;letter-spacing:-0.02em;}
+.icon-btn{background:var(--card-bg);color:var(--text);border:1.5px solid var(--input-border);width:auto;padding:9px 13px;border-radius:14px;font-size:18px;box-shadow:var(--shadow-sm);cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;}
+.icon-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.profile-icon-btn{padding:8px;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.menu-nav-list{display:flex;flex-direction:column;gap:8px;margin:14px 0 6px;}
+.menu-nav-item{width:100%;display:flex;align-items:center;gap:10px;text-align:left;padding:12px 16px;border-radius:12px;border:1.5px solid var(--input-border);background:var(--card-bg);color:var(--text);font-weight:700;font-size:14px;cursor:pointer;transition:transform 0.15s, box-shadow 0.15s, background 0.15s;}
+.menu-nav-item svg{flex:none;}
+.menu-tab-panel{display:none;}
+.note-card{background:var(--card-bg);border:1px solid var(--input-border);border-radius:14px;padding:12px 14px;margin-bottom:10px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform 0.15s, box-shadow 0.15s;}
+.note-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.note-card-title{font-weight:800;font-size:14px;margin-bottom:4px;}
+.note-card-preview{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.note-card-date{color:var(--muted);font-size:10px;margin-top:6px;}
+#noteContentInput{width:100%;font-family:inherit;margin-top:10px;}
+.menu-tab-panel.active{display:block;}
+body.compact-mode .task{padding:10px 12px;margin-bottom:8px;}
+body.compact-mode .kanban-card{padding:8px;margin-bottom:6px;}
+body.compact-mode .task h3{font-size:14px;margin-bottom:2px;}
+.menu-nav-item:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+.menu-nav-item.active{background:linear-gradient(135deg, var(--accent) 30%, var(--accent2) 100%);color:#fff;border-color:transparent;box-shadow:var(--shadow-sm);}
+
+.side-panel{display:none;position:fixed;top:0;bottom:0;width:320px;max-width:88vw;background:var(--container-bg);box-shadow:var(--shadow-lg);z-index:100;padding:20px;overflow-y:auto;}
+.side-panel.open{display:block;}
+.side-panel.left{left:0;border-radius:0 20px 20px 0;}
+.side-panel.right{right:0;border-radius:20px 0 0 20px;}
+.side-panel-close{width:auto;padding:6px 12px;background:var(--card-bg);border:1px solid var(--input-border);border-radius:10px;float:right;margin-bottom:22px;}
+.side-panel h2, .side-panel .section-title:first-of-type{clear:both;}
+.side-panel h2{font-size:16px;margin-bottom:12px;clear:both;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:99;}
+.overlay.open{display:block;}
+
+.menu-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.menu-tab{width:auto;padding:8px 12px;font-size:12px;border-radius:10px;background:var(--card-bg);border:1px solid var(--input-border);}
+.menu-tab.active{background:linear-gradient(135deg, var(--accent) 30%, var(--accent2) 100%);color:white;border-color:transparent;}
+.menu-pane{display:none;}
+.menu-pane.active{display:block;}
+
+.profile-info{background:var(--card-bg);border-radius:16px;padding:16px;margin-bottom:16px;}
+.profile-name{font-weight:800;font-size:16px;}
+.profile-email{font-size:13px;color:var(--muted);margin-top:2px;}
+
+.row-full{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px;}
+.row-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.row-triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+input,select,button{padding:12px 14px;border-radius:14px;border:1.5px solid var(--input-border);width:100%;font-size:14px;background:var(--input-bg);color:var(--text);transition:0.2s;}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+button{cursor:pointer;font-weight:700;letter-spacing:-0.01em;transition:transform 0.15s, box-shadow 0.15s;}
+button:hover{transform:translateY(-1px);}
+.add-btn{background:linear-gradient(135deg, var(--accent) 30%, var(--accent2) 100%);color:white;border:none;box-shadow:var(--shadow-sm);}
+.export-btn{background:linear-gradient(135deg,#3b82f6,#06b6d4);color:white;border:none;box-shadow:var(--shadow-sm);}
+.logout-btn{background:linear-gradient(135deg,#ef4444,#f97316);color:white;border:none;box-shadow:var(--shadow-sm);}
+.theme-btn{background:var(--card-bg);color:var(--text);border:1.5px solid var(--input-border);}
+.theme-btn.active{background:linear-gradient(135deg, var(--accent) 30%, var(--accent2) 100%);color:var(--accent-text);border-color:transparent;box-shadow:var(--shadow-sm);}
+.color-swatch-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(30px,1fr));gap:10px;max-height:172px;overflow-y:scroll;padding:12px;border-radius:16px;background:var(--input-bg);border:1px solid var(--input-border);box-shadow:inset 0 1px 3px rgba(0,0,0,0.06), inset 0 -14px 10px -10px rgba(0,0,0,0.10);scrollbar-width:auto;scrollbar-color:var(--accent) transparent;}
+.color-swatch-row::-webkit-scrollbar{width:10px;}
+.color-swatch-row::-webkit-scrollbar-track{background:transparent;}
+.color-swatch-row::-webkit-scrollbar-thumb{background:var(--accent);border-radius:99px;border:2px solid var(--input-bg);}
+.color-swatch{width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,0.22), inset 0 1px 1px rgba(255,255,255,0.35);transition:transform 0.15s cubic-bezier(.4,0,.2,1);flex:none;padding:0;}
+.color-swatch::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 26%, rgba(255,255,255,0.55), transparent 55%);pointer-events:none;}
+.color-swatch:hover{transform:scale(1.18);}
+.color-swatch.selected{transform:scale(1.1);box-shadow:0 0 0 3px var(--card-bg), 0 0 0 5px var(--text), 0 3px 8px rgba(0,0,0,0.3);}
+.color-swatch svg{position:relative;z-index:1;}
+.accent-preview-bar{height:46px;border-radius:14px;margin-top:12px;background:linear-gradient(135deg, var(--accent) 30%, var(--accent2) 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;box-shadow:var(--shadow-sm), inset 0 1px 1px rgba(255,255,255,0.25);}
+.profile-edit-row{display:flex;align-items:center;gap:8px;}
+.profile-edit-btn{width:28px;height:28px;flex:none;padding:0;border-radius:50%;border:1.5px solid var(--input-border);background:var(--input-bg);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.profile-edit-btn:hover{box-shadow:var(--shadow-sm);}
+.profile-edit-row input{flex:1;width:auto;min-width:0;padding:8px 10px;border-radius:10px;border:1.5px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:14px;}
+.profile-save-btn,.profile-cancel-btn{flex:none;width:auto;padding:8px 12px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;}
+.profile-save-btn{background:linear-gradient(135deg, var(--accent) 30%, var(--accent2) 100%);color:var(--accent-text);}
+.profile-cancel-btn{background:var(--input-bg);color:var(--text);border:1.5px solid var(--input-border);}
+.accordion-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;padding:0;margin:22px 0 0;font-size:17px;font-weight:800;color:var(--text);cursor:pointer;}
+.accordion-chevron{transition:transform 0.2s;}
+.accordion-toggle.open .accordion-chevron{transform:rotate(180deg);}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease;}
+.accordion-body.open{max-height:3000px;}
+
+.stats{display:flex;gap:15px;justify-content:center;margin:15px 0;flex-wrap:wrap;}
+.card{background:var(--card-bg);padding:14px 22px;border-radius:16px;font-weight:700;box-shadow:var(--shadow-sm);}
+
+.task{padding:18px;border-radius:18px;background:var(--card-bg);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+.task::before{content:"";position:absolute;top:0;left:0;bottom:0;width:5px;border-radius:18px 0 0 18px;}
+.high::before{background:linear-gradient(180deg,#ef4444,#f97316);}
+.medium::before{background:linear-gradient(180deg,#f59e0b,#fbbf24);}
+.low::before{background:linear-gradient(180deg,#22c55e,#4ade80);}
+.completed{text-decoration:line-through;opacity:0.55;}
+.actions{display:flex;gap:6px;}
+.actions button{width:auto;padding:9px 14px;border-radius:12px;}
+
+.pill{display:inline-block;padding:3px 11px;border-radius:99px;font-size:11px;font-weight:700;margin-right:6px;}
+.pill-high{background:#fee2e2;color:#b91c1c;}
+.pill-medium{background:#fef3c7;color:#92400e;}
+.pill-low{background:#dcfce7;color:#166534;}
+[data-theme="dark"] .pill-high{background:#4c1d1d;color:#fca5a5;}
+[data-theme="dark"] .pill-medium{background:#4a3a10;color:#fcd34d;}
+[data-theme="dark"] .pill-low{background:#153a24;color:#86efac;}
+.pill-category{background:var(--bg);color:var(--muted);border:1px solid var(--input-border);}
+.pill-tag{background:var(--bg);color:#4c3fc9;border:1px solid #4c3fc9;}
+.pill-repeat{background:var(--bg);color:#0d9488;border:1px solid #0d9488;}
+
+#authScreen,#forgotScreen,#resetScreen,#twoFaScreen{max-width:400px;margin:60px auto;background:var(--container-bg);padding:32px;border-radius:24px;box-shadow:var(--shadow-lg);}
+#authScreen input,#forgotScreen input,#resetScreen input,#twoFaScreen input{width:100%;margin-bottom:10px;}
+#authScreen button,#forgotScreen button,#resetScreen button,#twoFaScreen button{width:100%;margin-top:5px;}
+.hidden{display:none;}
+.error-msg{color:#dc3545;font-size:14px;margin-bottom:10px;}
+
+.section-title{font-size:17px;font-weight:800;margin:22px 0 4px;}
+.section-hint{font-size:12px;color:var(--muted);margin-bottom:12px;}
+
+/* Split row: Today's Tasks + Habit Tracker, equal height */
+.split-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;margin:18px 0;}
+.split-card{background:var(--card-bg);border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;}
+.split-card h3{font-size:15px;font-weight:800;margin-bottom:10px;}
+.split-card-body{flex:1;display:flex;flex-direction:column;}
+
+.mini-task{background:var(--input-bg);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:13px;}
+.mini-task-title{font-weight:700;}
+.mini-task-meta{color:var(--muted);font-size:11px;margin-top:2px;}
+
+.habit-row{background:var(--input-bg);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.habit-row-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.habit-row-name{font-weight:700;font-size:13px;}
+.habit-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.habit-tick{aspect-ratio:1;border-radius:8px;border:1.5px solid var(--input-border);background:var(--card-bg);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);padding:0;}
+.habit-tick.done{background:linear-gradient(135deg, var(--accent) 30%, var(--accent2) 100%);color:white;border-color:transparent;}
+.habit-delete-x{width:auto;padding:2px 8px;font-size:11px;background:transparent;border:none;color:#dc3545;box-shadow:none;}
+
+.dashboard-top-row{display:grid;grid-template-columns:1.1fr 0.8fr 1.1fr;gap:14px;margin-bottom:14px;}
+.dashboard-stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+.dash-card{background:var(--card-bg);border-radius:18px;padding:18px;text-align:center;box-shadow:var(--shadow-sm);}
+.dash-time{font-size:30px;font-weight:800;letter-spacing:-0.02em;}
+.dash-date{font-size:13px;color:var(--muted);margin-top:4px;}
+.dash-greeting{font-size:14px;margin-top:8px;font-weight:700;color:var(--accent);}
+.dash-num{font-size:28px;font-weight:800;}
+.dash-label{font-size:12px;color:var(--muted);margin-top:4px;font-weight:600;}
+.dash-countdown-text{font-size:15px;font-weight:700;margin-top:8px;}
+.dash-ring-card{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.progress-ring{--pct:0;width:90px;height:90px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--pct)*1%), var(--input-border) 0);display:flex;align-items:center;justify-content:center;position:relative;transition:background 0.6s ease;}
+.progress-ring::before{content:"";width:66px;height:66px;border-radius:50%;background:var(--card-bg);position:absolute;}
+.progress-ring-value{position:relative;z-index:1;font-size:18px;font-weight:800;}
+.progress-ring-large{width:160px;height:160px;}
+.progress-ring-large::before{width:120px;height:120px;}
+.progress-ring-large .progress-ring-value{font-size:30px;}
+
+.kanban-board{display:grid;grid-template-columns:repeat(4,minmax(200px,1fr));gap:14px;overflow-x:auto;padding-bottom:8px;}
+.kanban-column{background:var(--card-bg);border-radius:18px;padding:12px;min-height:120px;box-shadow:var(--shadow-sm);border:1.5px solid transparent;transition:border-color 0.15s, box-shadow 0.15s;}
+.kanban-column.drag-over{border-color:var(--accent);box-shadow:0 0 0 3px rgba(109,91,208,0.15);}
+.kanban-column-header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;color:white;font-weight:700;font-size:13px;margin-bottom:8px;}
+.kanban-col-icon{display:flex;align-items:center;opacity:.9;}
+.kanban-col-label{flex:1;}
+.kanban-col-count{background:rgba(255,255,255,0.25);border-radius:99px;padding:1px 9px;font-size:11px;font-weight:800;}
+.kanban-col-bar{height:4px;border-radius:99px;background:var(--input-bg);overflow:hidden;margin-bottom:12px;}
+.kanban-col-bar span{display:block;height:100%;border-radius:99px;transition:width 0.3s ease;}
+.kanban-drop-zone{min-height:60px;}
+.kanban-card{background:var(--input-bg);border:1px solid var(--input-border);border-left:4px solid var(--input-border);border-radius:14px;padding:12px;margin-bottom:10px;font-size:13px;box-shadow:var(--shadow-sm);cursor:grab;transition:transform 0.15s, box-shadow 0.15s, opacity 0.15s;}
+.kanban-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.kanban-card.dragging{opacity:0.4;cursor:grabbing;}
+.kanban-card.priority-high{border-left-color:#e53935;}
+.kanban-card.priority-medium{border-left-color:#fbc02d;}
+.kanban-card.priority-low{border-left-color:#43a047;}
+.kanban-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.kanban-drag-handle{color:var(--muted);opacity:.5;cursor:grab;}
+.kanban-due-badge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--bg);color:var(--muted);border:1px solid var(--input-border);}
+.kanban-due-badge.overdue{background:rgba(229,57,53,0.12);color:#e53935;border-color:#e53935;}
+.kanban-due-badge.due-soon{background:rgba(251,192,45,0.15);color:#a56c00;border-color:#fbc02d;}
+.kanban-card-title{font-weight:bold;margin-bottom:6px;}
+.kanban-card-meta{color:var(--muted);font-size:11px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.kanban-empty{color:var(--muted);font-size:12px;text-align:center;padding:18px 6px;border:1.5px dashed var(--input-border);border-radius:12px;}
+.kanban-card-actions{display:flex;justify-content:space-between;gap:4px;}
+.kanban-card-actions button{width:auto;padding:4px 8px;font-size:12px;}
+.kanban-arrow-btn{display:flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border-radius:50%;border:1.5px solid var(--input-border);background:var(--card-bg);color:var(--text);cursor:pointer;transition:transform 0.15s, box-shadow 0.15s, background 0.15s;}
+.kanban-arrow-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--shadow-sm);background:linear-gradient(135deg, var(--accent) 30%, var(--accent2) 100%);color:#fff;border-color:transparent;}
+.kanban-arrow-btn:disabled{opacity:0.35;cursor:not-allowed;}
+.kanban-empty{color:var(--muted);font-size:12px;font-style:italic;text-align:center;padding:10px 0;}
+
+.toggle-row{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:var(--input-bg);border-radius:14px;margin-bottom:8px;}
+.toggle-row input{width:auto;}
+.toggle-row span{font-size:14px;}
+.toggle-row small{color:var(--muted);display:block;font-size:11px;margin-top:2px;}
+
+.feature-section{margin:20px 0;}
+.feature-section h2{font-size:17px;margin-bottom:4px;}
+.feature-hint{font-size:12px;color:var(--muted);margin-bottom:12px;}
+
+.timeline-item{display:flex;gap:12px;padding:12px 0;border-left:3px solid var(--input-border);padding-left:16px;margin-left:6px;}
+.timeline-item.current{border-left-color:var(--accent);}
+.timeline-time{font-size:12px;color:var(--muted);min-width:70px;}
+.timeline-title{font-weight:bold;font-size:14px;}
+.timeline-meta{font-size:11px;color:var(--muted);}
+.timeline-empty{color:var(--muted);font-style:italic;font-size:13px;}
+
+.heatmap-row{display:flex;gap:8px;flex-wrap:wrap;}
+.heatmap-cell{flex:1;min-width:70px;border-radius:12px;padding:12px 6px;text-align:center;color:white;font-size:12px;}
+
+.habit-card{display:flex;justify-content:space-between;align-items:center;background:var(--card-bg);border-radius:16px;padding:16px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+
+.bill-card{display:flex;justify-content:space-between;align-items:center;background:var(--card-bg);border-radius:16px;padding:16px;margin-bottom:10px;box-shadow:var(--shadow-sm);}
+.bill-card.overdue{border-left:6px solid #dc3545;}
+.bill-card.due-soon{border-left:6px solid #ff8c00;}
+.bill-card.paid{opacity:0.6;}
+.bill-info strong{font-size:14px;}
+.bill-info div{font-size:12px;color:var(--muted);margin-top:2px;}
+.bill-actions{display:flex;gap:6px;}
+.bill-actions button{width:auto;padding:8px 12px;font-size:12px;border-radius:12px;}
+
+.calendar-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:bold;}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px;}
+.calendar-day-label{text-align:center;font-size:11px;color:var(--muted);font-weight:bold;}
+.calendar-day{background:var(--card-bg);border-radius:12px;min-height:60px;padding:8px;font-size:12px;cursor:pointer;position:relative;}
+.calendar-day.empty{background:transparent;cursor:default;}
+.calendar-day.today{border:2px solid var(--accent);}
+.calendar-day-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg, var(--accent) 30%, var(--accent2) 100%);position:absolute;bottom:8px;right:8px;}
+
+.conflict-card{background:#fff3cd;color:#664d03;border-left:6px solid #ff8c00;border-radius:14px;padding:14px 16px;margin-bottom:10px;font-size:13px;}
+[data-theme="dark"] .conflict-card{background:#3a2f0b;color:#ffdd80;}
+.no-conflicts{color:var(--muted);font-style:italic;font-size:13px;}
+
+.weekly-schedule-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
+.weekly-schedule-day{background:var(--input-bg);border-radius:12px;padding:8px;min-height:80px;}
+.weekly-schedule-day-label{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;}
+.weekly-schedule-task{font-size:11px;background:var(--card-bg);border-radius:8px;padding:4px 6px;margin-bottom:4px;}
+
+.chart-box{background:var(--input-bg);border-radius:16px;padding:16px;margin-bottom:16px;}
+.chart-box h4{font-size:13px;margin-bottom:10px;color:var(--muted);}
+
+.project-card{background:var(--input-bg);border-radius:14px;padding:14px;margin-bottom:10px;}
+.project-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.project-bar-track{background:var(--bg);border-radius:99px;height:10px;overflow:hidden;}
+.project-bar-fill{height:10px;background:linear-gradient(90deg, var(--accent), var(--accent2));}
+
+.progress-modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.4);backdrop-filter:blur(6px);align-items:center;justify-content:center;}
+.progress-modal-overlay.open{display:flex;}
+.progress-modal{background:var(--container-bg);border-radius:24px;padding:28px;max-width:360px;width:90%;box-shadow:var(--shadow-lg);position:relative;}
+.progress-modal h2{margin-top:20px;text-align:center;font-size:20px;}
+
+@media(max-width:700px){
+body{padding:10px;}
+.container{padding:16px;border-radius:18px;}
+.task{flex-direction:column;align-items:flex-start;}
+.actions{width:100%;flex-wrap:wrap;}
+.row-pair,.row-triple{grid-template-columns:1fr;}
+.kanban-board{grid-template-columns:1fr;}
+.dashboard-top-row{grid-template-columns:1fr;}
+.dashboard-stats-row{grid-template-columns:repeat(2,1fr);}
+.split-row{grid-template-columns:1fr;}
+.weekly-schedule-grid{grid-template-columns:1fr;}
+}
+@media(min-width:1300px){
+.dashboard-stats-row{grid-template-columns:repeat(5,1fr);}
+.kanban-board{grid-template-columns:repeat(4,1fr);}
+}
+body.force-desktop .task{flex-direction:row;align-items:center;}
+body.force-desktop .actions{width:auto;flex-wrap:nowrap;}
+body.force-desktop .row-pair,body.force-desktop .row-triple{grid-template-columns:repeat(3,1fr);}
+body.force-desktop .row-pair{grid-template-columns:1fr 1fr;}
+body.force-desktop .kanban-board{grid-template-columns:repeat(4,1fr);}
+body.force-desktop .dashboard-top-row{grid-template-columns:1.1fr 0.8fr 1.1fr;}
+body.force-desktop .dashboard-stats-row{grid-template-columns:repeat(5,1fr);}
+body.force-desktop .split-row{grid-template-columns:1fr 1fr;}
+body.force-desktop .weekly-schedule-grid{grid-template-columns:repeat(7,1fr);}
+body.force-desktop .container{max-width:1200px;}
+</style>
+</head>
+<body>
+
+<div id="authScreen">
+  <h1 id="authTitle">Login</h1>
+  <p id="authError" class="error-msg"></p>
+  <input type="text" id="nameField" placeholder="Name (register only)" class="hidden">
+  <input type="email" id="emailField" placeholder="Email">
+  <input type="password" id="passwordField" placeholder="Password">
+  <input type="text" id="authWebsiteField" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
+  <button class="add-btn" id="authSubmitBtn" onclick="handleAuthSubmit()">Login</button>
+  <button class="theme-btn" onclick="toggleAuthMode()" id="authToggleBtn">Need an account? Register</button>
+  <button class="theme-btn" onclick="showForgotPasswordScreen()">Forgot Password?</button>
+  <p style="text-align:center;margin-top:16px;font-size:12px;color:var(--muted);">
+    <a href="privacy.html" target="_blank" style="color:var(--muted);">Privacy Policy</a> &middot; <a href="terms.html" target="_blank" style="color:var(--muted);">Terms of Service</a>
+  </p>
+</div>
+
+<div id="forgotScreen" class="hidden">
+  <h1>Reset Password</h1>
+  <p id="forgotError" class="error-msg"></p>
+  <input type="email" id="forgotEmailField" placeholder="Email">
+  <input type="text" id="forgotWebsiteField" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
+  <button class="add-btn" onclick="requestOTP()">Send OTP</button>
+  <button class="theme-btn" onclick="backToLogin()">Back to Login</button>
+</div>
+
+<div id="resetScreen" class="hidden">
+  <h1>Enter OTP</h1>
+  <p id="resetError" class="error-msg"></p>
+  <input type="text" id="otpField" placeholder="6-digit OTP">
+  <input type="password" id="newPasswordField" placeholder="New Password">
+  <button class="add-btn" onclick="submitNewPassword()">Reset Password</button>
+  <button class="theme-btn" onclick="backToLogin()">Back to Login</button>
+</div>
+
+<div id="twoFaScreen" class="hidden">
+  <h1>Verify It's You</h1>
+  <p id="twoFaEmailHint" class="feature-hint"></p>
+  <p id="twoFaError" class="error-msg"></p>
+  <input type="text" id="twoFaOtpField" placeholder="6-digit code">
+  <button class="add-btn" onclick="verifyLogin2FA()">Verify and Log In</button>
+  <button class="theme-btn" onclick="cancelLogin2FA()">Cancel</button>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
+
+<div class="side-panel left" id="leftPanel">
+  <button class="side-panel-close" onclick="closeAllPanels()">Close</button>
+  <h2>Menu</h2>
+
+  <div class="menu-nav-list">
+    <button class="menu-nav-item active" id="navHome" onclick="menuNavGoTo('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h3a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="menu-nav-item" id="navCustomize" onclick="menuNavGoTo('customize')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h13M20 18h0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="6" r="2.2" fill="currentColor"/><circle cx="8" cy="12" r="2.2" fill="currentColor"/><circle cx="17" cy="18" r="2.2" fill="currentColor"/></svg>
+      <span>Customize</span>
+    </button>
+    <button class="menu-nav-item" id="navSchedule" onclick="menuNavGoTo('schedule')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M3.5 9.5h17M8 3v3.5M16 3v3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>Schedule</span>
+    </button>
+    <button class="menu-nav-item" id="navProgress" onclick="menuNavGoTo('progress')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M11 20V4M18 20v-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span>Progress Report</span>
+    </button>
+    <button class="menu-nav-item" id="navNotes" onclick="menuNavGoTo('notes')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 3.5h9l4 4v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-16a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span>Notes</span>
+    </button>
+  </div>
+  <p class="feature-hint" id="menuNavHint">You're already on the home screen. Close this menu to keep working.</p>
+
+  <div class="menu-tab-panel" id="panelCustomize">
+    <div class="section-title" style="margin-top:0;" id="sectionCustomize">Customize</div>
+    <p class="feature-hint">Turn on optional widgets shown at the bottom of the home screen.</p>
+    <label class="toggle-row"><input type="checkbox" id="toggleHeatmap" onchange="onFeatureToggleChange('heatmap', this.checked)"><span>Weekly Heatmap</span></label>
+    <label class="toggle-row"><input type="checkbox" id="toggleBills" onchange="onFeatureToggleChange('bills', this.checked)"><span>Bills and Reminders</span></label>
+    <label class="toggle-row"><input type="checkbox" id="toggleCalendar" onchange="onFeatureToggleChange('calendar', this.checked)"><span>Calendar View</span></label>
+    <label class="toggle-row"><input type="checkbox" id="toggleConflicts" onchange="onFeatureToggleChange('conflicts', this.checked)"><span>Time Conflict Detection</span></label>
+    <label class="toggle-row"><input type="checkbox" id="toggleHideCompleted" onchange="onFeatureToggleChange('hideCompleted', this.checked)"><span>Hide Completed Tasks</span></label>
+    <label class="toggle-row"><input type="checkbox" id="toggleCompact" onchange="onFeatureToggleChange('compact', this.checked)"><span>Compact Task Cards</span></label>
+    <label class="toggle-row"><input type="checkbox" id="toggleNotifications" onchange="onNotificationToggleChange(this.checked)"><span>Due Date Notifications</span></label>
+    <label class="toggle-row"><input type="checkbox" id="toggleDesktopView" onchange="onDesktopViewToggleChange(this.checked)"><span>Desktop View</span></label>
+    <p class="feature-hint" style="margin-top:10px;">Open app on</p>
+    <select id="defaultViewSelect" onchange="setDefaultView(this.value)">
+      <option value="top">Top of Page</option>
+      <option value="taskList">Task List</option>
+      <option value="kanbanBoard">Kanban Board</option>
+      <option value="calendarSection">Calendar</option>
+    </select>
+  </div>
+
+  <div class="menu-tab-panel" id="panelSchedule">
+    <div class="section-title" style="margin-top:0;" id="sectionSchedule">Schedule - Daily</div>
+    <p class="feature-hint">Today's tasks, in order.</p>
+    <div id="scheduleDailyList"></div>
+
+    <div class="section-title">Schedule - Weekly</div>
+    <p class="feature-hint">This week, Monday to Sunday.</p>
+    <div class="weekly-schedule-grid" id="scheduleWeeklyGrid"></div>
+  </div>
+
+  <div class="menu-tab-panel" id="panelProgress">
+    <div class="section-title" style="margin-top:0;" id="sectionProgress">AI Insights</div>
+    <div class="menu-tabs">
+      <button class="menu-tab active" id="tabWeek" onclick="selectPeriod('week')">Weekly</button>
+      <button class="menu-tab" id="tabMonth" onclick="selectPeriod('month')">Monthly</button>
+      <button class="menu-tab" id="tabYear" onclick="selectPeriod('year')">Yearly</button>
+    </div>
+    <button class="add-btn" onclick="generateInsights()">Generate AI Summary</button>
+    <div class="chart-box" id="insightsOutputBox" style="margin-top:10px;"><span id="insightsOutput" class="feature-hint">Select a period and click Generate.</span></div>
+
+    <div class="section-title">Download Reports</div>
+    <div class="row-pair"><button class="export-btn" onclick="downloadReport('week')">Weekly PDF</button><button class="export-btn" onclick="downloadReport('month')">Monthly PDF</button></div>
+    <div class="row-pair"><button class="export-btn" onclick="downloadReport('year')">Yearly PDF</button><button class="export-btn" onclick="downloadReport('all')">All-Time PDF</button></div>
+
+    <div class="section-title">Completion Overview</div>
+    <div class="chart-box" style="display:flex;justify-content:center;">
+      <div class="progress-ring progress-ring-large" id="pieChartRing"><span class="progress-ring-value" id="pieChartValue">0%</span></div>
+    </div>
+
+    <div class="chart-box">
+      <h4>Tasks completed per month (last 6 months)</h4>
+      <svg id="lineChartSvg" width="100%" height="120" viewBox="0 0 280 120"></svg>
+    </div>
+
+    <div class="section-title">Project Tracking</div>
+    <div class="row-pair"><input type="text" id="projectNameInput" placeholder="Project name"><button class="add-btn" onclick="addProject()">Add</button></div>
+    <div id="projectsList"></div>
+  </div>
+
+  <div class="menu-tab-panel" id="panelNotes">
+    <div class="section-title" style="margin-top:0;" id="sectionNotes">Notes</div>
+
+    <div id="notesListView">
+      <button class="add-btn" onclick="createNewNote()">+ New Note</button>
+      <div id="notesList" style="margin-top:12px;"></div>
+    </div>
+
+    <div id="noteEditorView" class="hidden">
+      <button class="theme-btn" style="margin-bottom:12px;" onclick="backToNotesList()">&larr; Back to Notes</button>
+      <input type="text" id="noteTitleInput" placeholder="Note title" oninput="scheduleNoteSave()">
+      <textarea id="noteContentInput" placeholder="Type whatever you want..." rows="12" style="resize:vertical;" oninput="scheduleNoteSave()"></textarea>
+      <div class="row-pair" style="margin-top:10px;">
+        <span class="feature-hint" id="noteSaveStatus" style="align-self:center;">Saved</span>
+        <button class="logout-btn" style="background:linear-gradient(135deg,#7f1d1d,#991b1b);" onclick="deleteCurrentNote()">Delete Note</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="side-panel right" id="rightPanel">
+  <button class="side-panel-close" onclick="closeAllPanels()">Close</button>
+
+  <div class="section-title" style="margin-top:0;">Profile</div>
+  <div class="profile-info">
+    <div class="profile-edit-row">
+      <div class="profile-name" id="profileName">-</div>
+      <button class="profile-edit-btn" id="profileEditBtn" onclick="startEditProfileName()" aria-label="Edit name">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0 0-3l-1-1a2.1 2.1 0 0 0-3 0L4 15v5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="profile-edit-row hidden" id="profileNameEditRow">
+      <input type="text" id="profileNameInput" maxlength="60">
+      <button class="profile-save-btn" onclick="saveProfileName()">Save</button>
+      <button class="profile-cancel-btn" onclick="cancelEditProfileName()">Cancel</button>
+    </div>
+    <div class="profile-email" id="profileEmail">-</div>
+  </div>
+
+  <button class="accordion-toggle" id="settingsToggle" onclick="toggleAccordion('settings')">
+    <span>Settings</span>
+    <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div class="accordion-body" id="settingsBody">
+    <p class="feature-hint" style="margin-top:12px;">Mode</p>
+    <div class="row-triple">
+      <button class="theme-btn" id="themeCool" onclick="setTheme('cool')">Cool</button>
+      <button class="theme-btn" id="themeWarm" onclick="setTheme('warm')">Warm</button>
+      <button class="theme-btn" id="themeDark" onclick="setTheme('dark')">Dark</button>
+    </div>
+    <p class="feature-hint" style="margin-top:10px;">Font</p>
+    <select id="fontSelect" onchange="setFont(this.value)">
+      <option value="'Inter', Arial, sans-serif">Inter</option>
+      <option value="'Poppins', Arial, sans-serif">Poppins</option>
+      <option value="'Nunito', Arial, sans-serif">Nunito</option>
+      <option value="'Roboto', Arial, sans-serif">Roboto</option>
+      <option value="'Quicksand', Arial, sans-serif">Quicksand</option>
+      <option value="'Space Grotesk', Arial, sans-serif">Space Grotesk</option>
+      <option value="'Merriweather', serif">Merriweather</option>
+      <option value="'Playfair Display', serif">Playfair Display</option>
+    </select>
+
+    <p class="feature-hint" style="margin-top:14px;">Accent Colors</p>
+    <div class="row-pair">
+      <button class="theme-btn" id="accentModeDefault" onclick="setAccentMode('default')">Theme Default</button>
+      <button class="theme-btn" id="accentModeCustom" onclick="setAccentMode('custom')">Custom Colors</button>
+    </div>
+    <div id="customColorSection" class="hidden">
+      <p class="feature-hint" style="margin-top:4px;">Primary (majority)</p>
+      <div class="color-swatch-row" id="primarySwatchRow"></div>
+      <p class="feature-hint" style="margin-top:2px;font-size:11px;">&#8597; Scroll within the box for more colors</p>
+      <p class="feature-hint" style="margin-top:10px;">Secondary (minority)</p>
+      <div class="color-swatch-row" id="secondarySwatchRow"></div>
+      <p class="feature-hint" style="margin-top:2px;font-size:11px;">&#8597; Scroll within the box for more colors</p>
+      <p class="feature-hint" id="accentColorWarning" style="color:#dc3545;display:none;">Primary and secondary can't be the same color.</p>
+      <div class="accent-preview-bar">Live Preview</div>
+    </div>
+  </div>
+
+  <button class="accordion-toggle" id="accountToggle" onclick="toggleAccordion('account')">
+    <span>Account</span>
+    <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div class="accordion-body" id="accountBody">
+    <label class="toggle-row" style="margin-top:12px;"><input type="checkbox" id="toggleTwoFactor" onchange="onTwoFactorToggleChange(this.checked)"><span>Two-Factor Authentication (email code)</span></label>
+    <button class="logout-btn" style="background:linear-gradient(135deg,#0d9488,#0f766e);margin-top:6px;" onclick="initiateChangePasswordFromAccount()">Forgot / Change Password</button>
+    <div style="height:8px;"></div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    <div style="height:8px;"></div>
+    <button class="logout-btn" style="background:linear-gradient(135deg,#3b82f6,#6366f1);" onclick="switchAccount()">Change Account</button>
+    <div style="height:8px;"></div>
+    <button class="logout-btn" style="background:linear-gradient(135deg,#7f1d1d,#991b1b);" onclick="handleDeleteAccount()">Delete Account</button>
+  </div>
+</div>
+
+<!-- Full-screen blurred project progress view -->
+<div class="progress-modal-overlay hidden" id="progressModalOverlay" onclick="closeProjectProgress(event)">
+  <div class="progress-modal" onclick="event.stopPropagation()">
+    <button class="side-panel-close" onclick="closeProjectProgress()">Close</button>
+    <h2 id="progressModalName">Project</h2>
+    <div style="display:flex;justify-content:center;margin:16px 0;">
+      <div class="progress-ring progress-ring-large" id="progressModalRing"><span class="progress-ring-value" id="progressModalValue">0%</span></div>
+    </div>
+    <p id="progressModalStatus" class="section-hint" style="text-align:center;font-weight:700;"></p>
+    <button class="logout-btn" id="progressModalDelete" style="margin-top:16px;">Delete This Project</button>
+  </div>
+</div>
+
+<div class="container hidden" id="appContainer">
+
+<div class="topbar">
+<div class="topbar-left"><button class="icon-btn" onclick="openLeftPanel()" aria-label="Open menu">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="3" rx="1.5" fill="currentColor"/><rect x="2" y="10.5" width="20" height="3" rx="1.5" fill="currentColor"/><rect x="2" y="17" width="20" height="3" rx="1.5" fill="currentColor"/></svg>
+</button></div>
+<div class="brand">Ekagro</div>
+<div class="topbar-right"><button class="icon-btn profile-icon-btn" onclick="openRightPanel()" aria-label="Open profile and settings">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10.5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="10" r="3.6" fill="currentColor"/><path d="M5.5 19c1-3 3.6-4.6 6.5-4.6s5.5 1.6 6.5 4.6" fill="currentColor"/></svg>
+</button></div>
+</div>
+
+<div class="row-full"><input type="text" id="taskInput" placeholder="Task"></div>
+<div class="row-pair"><input type="date" id="dueDate"><input type="time" id="dueTime"></div>
+<div class="row-pair">
+<select id="category"><option>Personal</option><option>Study</option><option>Work</option><option>Health</option></select>
+<select id="priority"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+</div>
+<div class="row-pair">
+<select id="recurring"><option value="none">Does not repeat</option><option value="daily">Repeats daily</option><option value="weekly">Repeats weekly</option><option value="monthly">Repeats monthly</option></select>
+<input type="text" id="taskTags" placeholder="Tags (comma separated)">
+</div>
+<div class="row-full"><button class="add-btn" onclick="addTask()">Add Task</button></div>
+
+<div class="split-row">
+  <div class="split-card">
+    <h3>Today's Tasks</h3>
+    <div class="split-card-body" id="todaysTasksList"></div>
+  </div>
+  <div class="split-card">
+    <h3>Habit Tracker</h3>
+    <div class="row-pair" style="margin-bottom:10px;">
+      <input type="text" id="habitNameInput" placeholder="New habit">
+      <button class="add-btn" onclick="addHabit()">Add</button>
+    </div>
+    <div class="split-card-body" id="habitTrackerList"></div>
+  </div>
+</div>
+
+<div class="section-title">Dashboard Overview</div>
+<div class="dashboard-top-row">
+  <div class="dash-card"><div class="dash-time" id="dashClock">--:--</div><div class="dash-date" id="dashDate">-</div><div class="dash-greeting" id="dashGreeting">Hello</div></div>
+  <div class="dash-card dash-ring-card"><div class="progress-ring" id="progressRing"><span class="progress-ring-value" id="progressRingValue">0%</span></div><div class="dash-label" style="margin-top:8px;">Completion Rate</div></div>
+  <div class="dash-card"><div class="dash-label">Next Deadline</div><div class="dash-countdown-text" id="dashCountdown">No upcoming deadlines</div></div>
+</div>
+<div class="dashboard-stats-row">
+  <div class="dash-card"><div class="dash-num" id="dashToday">0</div><div class="dash-label">Today's Tasks</div></div>
+  <div class="dash-card"><div class="dash-num" id="dashUpcoming">0</div><div class="dash-label">Upcoming</div></div>
+  <div class="dash-card"><div class="dash-num" id="dashCompleted">0</div><div class="dash-label">Completed</div></div>
+  <div class="dash-card"><div class="dash-num" id="dashPending">0</div><div class="dash-label">Pending</div></div>
+  <div class="dash-card"><div class="dash-num" id="dashOverdue">0</div><div class="dash-label">Overdue</div></div>
+</div>
+
+<div class="section-title">Search and Filter</div>
+<div class="row-full"><input type="text" id="search" placeholder="Search Task" onkeyup="renderAll()"></div>
+<div class="row-pair">
+<select id="filterCategory" onchange="renderAll()"><option value="All">All Categories</option><option value="Personal">Personal</option><option value="Study">Study</option><option value="Work">Work</option><option value="Health">Health</option></select>
+<select id="sortPriority" onchange="renderAll()"><option value="none">Sort Priority</option><option value="high">High First</option><option value="low">Low First</option></select>
+</div>
+<div class="row-full"><select id="filterTag" onchange="renderAll()"><option value="All">All Tags</option></select></div>
+
+<div id="taskList"></div>
+
+<div class="section-title">Kanban Board</div>
+<div class="kanban-board" id="kanbanBoard"></div>
+
+<div class="feature-section hidden" id="heatmapSection">
+  <h2>Weekly Heatmap</h2>
+  <div class="heatmap-row" id="heatmapRow"></div>
+</div>
+<div class="feature-section hidden" id="billsSection">
+  <h2>Bills and Reminders</h2>
+  <div class="row-triple"><input type="text" id="billNameInput" placeholder="Bill name"><input type="number" id="billAmountInput" placeholder="Amount"><input type="date" id="billDueDateInput"></div>
+  <div class="row-full"><button class="add-btn" onclick="addBill()">Add Bill</button></div>
+  <div id="billsList"></div>
+</div>
+<div class="feature-section hidden" id="calendarSection">
+  <h2>Calendar View</h2>
+  <div class="calendar-nav">
+    <button class="theme-btn" style="width:auto;padding:8px 14px;" onclick="changeCalendarMonth(-1)">Prev</button>
+    <span id="calendarMonthLabel"></span>
+    <button class="theme-btn" style="width:auto;padding:8px 14px;" onclick="changeCalendarMonth(1)">Next</button>
+  </div>
+  <div class="calendar-grid" id="calendarGrid"></div>
+  <div id="calendarDayTasks"></div>
+</div>
+<div class="feature-section hidden" id="conflictsSection">
+  <h2>Time Conflicts</h2>
+  <div id="conflictsList"></div>
+</div>
+
+</div>
+
+<script src="app-core.js"></script>
+<script src="app-panels-theme.js"></script>
+<script src="app-tasks.js"></script>
+<script src="app-settings.js"></script>
+<script src="app-reports.js"></script>
+<script src="app-notes.js"></script>
+<script src="app-init.js"></script>
+</body>
+</html>

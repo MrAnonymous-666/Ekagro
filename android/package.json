@@ -1,0 +1,7 @@
+{
+  "name": "ekagro-android",
+  "version": "1.0.0",
+  "scripts": { "add": "npx cap add android", "sync": "npx cap sync", "open": "npx cap open android" },
+  "dependencies": { "@capacitor/android": "^6.1.0", "@capacitor/core": "^6.1.0", "@capacitor/preferences": "^6.0.2" },
+  "devDependencies": { "@capacitor/cli": "^6.1.0" }
+}

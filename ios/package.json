@@ -1,0 +1,7 @@
+{
+  "name": "ekagro-ios",
+  "version": "1.0.0",
+  "scripts": { "add": "npx cap add ios", "sync": "npx cap sync", "open": "npx cap open ios" },
+  "dependencies": { "@capacitor/core": "^6.1.0", "@capacitor/ios": "^6.1.0", "@capacitor/preferences": "^6.0.2" },
+  "devDependencies": { "@capacitor/cli": "^6.1.0" }
+}

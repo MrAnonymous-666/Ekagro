@@ -1,0 +1,13 @@
+{
+  "name": "Ekagro",
+  "short_name": "Ekagro",
+  "description": "Ekagro \u2014 a full-featured task manager with AI insights, Kanban, habits, and more.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFF6EE",
+  "theme_color": "#FF7A45",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

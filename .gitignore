@@ -1,0 +1,18 @@
+# Backend secrets - never commit this
+backend/.env
+
+# Dependencies
+node_modules/
+backend/node_modules/
+desktop/node_modules/
+android/node_modules/
+ios/node_modules/
+
+# Build output
+desktop/dist/
+android/android/
+ios/ios/
+
+# OS files
+.DS_Store
+Thumbs.db

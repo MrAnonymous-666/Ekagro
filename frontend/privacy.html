@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy \u2014 Ekagro</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',Arial,sans-serif;}
+  body{background:#eef1f8;color:#1a1d29;line-height:1.6;}
+  .wrap{max-width:720px;margin:0 auto;padding:48px 24px 80px;}
+  h1{font-size:28px;font-weight:800;margin-bottom:6px;}
+  .updated{color:#6b7280;font-size:13px;margin-bottom:32px;}
+  h2{font-size:18px;font-weight:700;margin:28px 0 10px;}
+  p, li{color:#33374a;font-size:14.5px;margin-bottom:10px;}
+  ul{padding-left:20px;margin-bottom:10px;}
+  a{color:#5b5ff0;}
+  .back{display:inline-block;margin-bottom:24px;color:#5b5ff0;text-decoration:none;font-weight:600;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/" class="back">&larr; Back to Ekagro</a>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: August 2026</p>
+
+  <p>This policy explains what information Ekagro collects, why, and how it's handled. Ekagro is a task management application; this policy covers the account and productivity data you provide while using it.</p>
+
+  <h2>What we collect</h2>
+  <ul>
+    <li><strong>Account information:</strong> your name, email address, and password. Your password is never stored in plain text \u2014 it is hashed with bcrypt before being saved.</li>
+    <li><strong>Productivity data:</strong> the tasks, notes, habits, bills, and projects you create, along with their associated details (due dates, categories, tags, etc.).</li>
+    <li><strong>Login security data:</strong> temporary one-time codes (OTPs) used for password resets and optional two-factor authentication, which expire automatically and are deleted after use.</li>
+  </ul>
+
+  <h2>What we do not collect</h2>
+  <ul>
+    <li>Ekagro does not use tracking cookies or third-party advertising trackers.</li>
+    <li>Ekagro does not sell or share your personal data with third parties for marketing purposes.</li>
+  </ul>
+
+  <h2>Third-party services used</h2>
+  <ul>
+    <li><strong>MongoDB Atlas</strong> \u2014 stores your account and productivity data securely.</li>
+    <li><strong>Google Gemini API</strong> \u2014 if you use the AI Insights feature, a summary of your task data for the selected period is sent to Google's Gemini API to generate a natural-language productivity summary. This happens only when you explicitly request it.</li>
+    <li><strong>Email delivery (SMTP)</strong> \u2014 used only to send password-reset codes and optional two-factor authentication codes to your registered email address.</li>
+  </ul>
+
+  <h2>How your data is protected</h2>
+  <ul>
+    <li>Passwords are hashed, never stored or transmitted in plain text.</li>
+    <li>Sessions use signed JSON Web Tokens (JWTs) rather than persistent tracking cookies.</li>
+    <li>All data is scoped to your account; no other user can access your tasks, notes, or personal information.</li>
+    <li>Requests are protected against common web vulnerabilities (injection attacks, unauthorized field tampering, and brute-force login attempts).</li>
+  </ul>
+
+  <h2>Data deletion</h2>
+  <p>You can delete your account at any time from Account Settings. Deleted accounts enter a 7-day recovery window (in case of accidental deletion), after which all associated data is permanently and irreversibly removed.</p>
+
+  <h2>Your rights</h2>
+  <p>You may request a copy of your data, correct inaccurate information, or request permanent deletion at any time by contacting us using the details below.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy can be sent to: <strong>[your-contact-email@example.com]</strong> \u2014 replace this placeholder with a real, monitored email address before publishing.</p>
+</div>
+</body>
+</html>
