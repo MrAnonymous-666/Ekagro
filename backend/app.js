@@ -17,7 +17,9 @@ const billRoutes = require("./api/billRoutes");
 const projectRoutes = require("./api/projectRoutes");
 const noteRoutes = require("./api/noteRoutes");
 
-const app = express();
+// render puts a proxy in front of the app, without this every visitor looks like
+// the same IP and the login rate limit gets shared between all users
+app.set("trust proxy", 1);
 
 // Adds standard protective response headers (blocks the page from being
 // framed by another site, stops browsers from mis-guessing file types,
