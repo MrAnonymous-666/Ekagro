@@ -3,4 +3,4 @@
 // Real phone same Wi-Fi: "http://<your-PC-local-IP>:5000/api"
 // After deploying: your live backend URL
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://ekagro.onrender.com/api";
